@@ -1,32 +1,43 @@
 """A minesweeper game"""
 
 import random
-from table import table
+from enum import Enum
+from table import Table
 
-class Flags:
+class Flags(Enum):
     Unknown = 0
     Marked = 1
     Revealed = 2
 
 class Game:
-    """Playing field of the minesweeper game."""
+    """Playing field of the minesweeper game.
+    The game provides three tables:
+    1. The mines table indicate if a field contains a mine
+    2. The flags table holds which fields are Unknown, Marked or Revealed
+    3. The hints table holds a pre-computed number of surrounding mines for each field
+    """
+
     def __init__(self, mines, flags=None):
-        """Generates a Grid of variable size and a specific number of mines."""
+        """Generates a Game from a given mine configuration.
+        If flags is None, it will be initialized with Unknown.
+        """
         if flags is None:
-            flags = table(mines.num_columns, mines.num_rows, Flags.Unknown)
+            flags = Table(mines.num_columns, mines.num_rows, Flags.Unknown)
         if mines.size() != flags.size():
             raise ValueError('Fields cannot have different sizes ({0} != {1})'.format(mines.size(), flags.size()))
         self.mines = mines
         self.flags = flags
-        self.hints = table(mines.num_columns, mines.num_rows, 0)
+        self.hints = Table(mines.num_columns, mines.num_rows, 0)
 
         for i, _ in enumerate(self.hints):
             self.hints[i] = self.hint(*self.hints.linear_to_subscript(i))
 
     def row_count(self):
+        """Returns the vertical size of the field."""
         return self.mines.num_rows
 
     def column_count(self):
+        """Returns the horizontal size of the field."""
         return self.mines.num_columns
 
     def hint(self, x, y):
@@ -78,9 +89,9 @@ class Game:
 
     def reveal(self, x, y, reveal_known=True):
         """Reveals a fields.
-        Returns False if the revealed field was a mine field or True otherwise.
+        Returns False if the revealed field was a mine field, True otherwise.
         If the revealed field has no neighboring mines all neighboring fields are revealed recursively.
-        Revealing a flagged field with reset it to unknown again.
+        Revealing a Marked field resets it to Unknown again.
         If reveal_known is set, the field is already revealed and the number of
         flagged neighbors is equal to the hint, all non-flagged fields around
         the field are revealed as well.
@@ -141,8 +152,8 @@ class Game:
     @classmethod
     def create_random(cls, columns, rows, number_of_mines):
         """Generates a Grid of variable size and a specific number of randomly placed mines."""
-        mines = table(columns, rows, False)
-        flags = table(columns, rows, Flags.Unknown)
+        mines = Table(columns, rows, False)
+        flags = Table(columns, rows, Flags.Unknown)
 
         # indices of all fields
         fields = [(c, r) for c in range(columns) for r in range(rows)]
@@ -150,27 +161,3 @@ class Game:
         for x, y in random.sample(fields, number_of_mines):
             mines[x, y] = True
         return Game(mines, flags)
-
-if __name__ == '__main__':
-    game = Game.create_random(5, 5, 2)
-
-    while True:
-        game.print_field()
-        print("Select (Column, Row): ")
-        try:
-            x, y = map(int, input().split(','))
-        except KeyboardInterrupt:
-            print()
-            break
-        except:
-            print("Invalid input")
-            continue
-
-        if not game.reveal(x, y):
-            print("You Lose!")
-            game.print_field()
-            break
-        if game.is_solved():
-            print("You Win!")
-            game.print_field()
-            break

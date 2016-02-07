@@ -2,30 +2,34 @@
 
 import itertools
 
-class table:
+class Table:
     """2D table of values with m columns and n rows.
-    >>> table(2, 2)
+    >>> Table(2, 2)
+    Table 2x2:
     [0, 0]
     [0, 0]
-    >>> table(2, 2, 1)
+    >>> Table(2, 2, 1)
+    Table 2x2:
     [1, 1]
     [1, 1]
-    >>> table(3, 2)
+    >>> Table(3, 2)
+    Table 3x2:
     [0, 0, 0]
     [0, 0, 0]
-    >>> table(2, 3)
+    >>> Table(2, 3)
+    Table 2x3:
     [0, 0]
     [0, 0]
     [0, 0]
-    >>> table(2,0)
+    >>> Table(2,0)
     Traceback (most recent call last):
     ...
     ValueError: Table size cannot be smaller than 1
-    >>> table(1,-1)
+    >>> Table(1,-1)
     Traceback (most recent call last):
     ...
     ValueError: Table size cannot be smaller than 1
-    >>> t = table(3, 4)
+    >>> t = Table(3, 4)
     >>> t.num_rows
     4
     >>> t.num_columns
@@ -45,7 +49,7 @@ class table:
     def __getitem__(self, key):
         """Returns value of a cell.
         Key can either be a tuple of (row, column) or a linear index (i.e. column + row*num_columns).
-        >>> t = table.from_nested_list([[0, 1, 2], [3, 4, 5]])
+        >>> t = Table.from_nested_list([[0, 1, 2], [3, 4, 5]])
         >>> t[0, 0]
         0
         >>> t[1,1]
@@ -83,11 +87,12 @@ class table:
     def __setitem__(self, key, value):
         """Overrides the value of a cell.
         Key can either be a tuple of (row, column) or a linear index (i.e. column + row*num_columns).
-        >>> t = table(3, 2)
+        >>> t = Table(3, 2)
         >>> t[0, 0] = 4
         >>> t[1, 0] = 5
         >>> t[0, 1] = 6
         >>> t
+        Table 3x2:
         [4, 5, 0]
         [6, 0, 0]
         >>> t[4, 0] = 1
@@ -96,6 +101,7 @@ class table:
         IndexError: list index out of range
         >>> t[4] = 1
         >>> t
+        Table 3x2:
         [4, 5, 0]
         [6, 1, 0]
         """
@@ -134,7 +140,7 @@ class table:
 
     def row(self, r):
         """Returns a row as a list.
-        >>> t = table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+        >>> t = Table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
         >>> t.row(0)
         [0, 1, 2, 3]
         >>> t.row(2)
@@ -156,7 +162,8 @@ class table:
 
     def __repr__(self):
         """Returns the table as a string.
-        >>> table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+        >>> Table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+        Table 4x3:
         [0, 1, 2, 3]
         [4, 5, 6, 7]
         [8, 9, 10, 11]
@@ -168,7 +175,7 @@ class table:
 
     def __iter__(self):
         """Iterates the table in a column major order.
-        >>> t = table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+        >>> t = Table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
         >>> [c for c in t]
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         """
@@ -179,12 +186,13 @@ class table:
     @classmethod
     def from_nested_list(cls, list_of_list):
         """
-        >>> t = table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+        >>> t = Table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
         >>> t.num_columns
         4
         >>> t.num_rows
         3
         >>> t
+        Table 4x3:
         [0, 1, 2, 3]
         [4, 5, 6, 7]
         [8, 9, 10, 11]
@@ -193,6 +201,6 @@ class table:
         if len(set([len(l) for l in list_of_list])) > 1:
             raise ValueError('Rows cannot have different length')
 
-        t = table(len(list_of_list[0]), len(list_of_list))
+        t = Table(len(list_of_list[0]), len(list_of_list))
         t.table = list(itertools.chain(*list_of_list))
         return t
