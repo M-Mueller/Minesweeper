@@ -45,7 +45,7 @@ class Table:
     def size(self):
         """Returns the dimensions of the table as a tuple."""
         return (self.num_columns, self.num_rows)
-
+	
     def __getitem__(self, key):
         """Returns value of a cell.
         Key can either be a tuple of (row, column) or a linear index (i.e. column + row*num_columns).
@@ -149,6 +149,18 @@ class Table:
         row_start = self.subscript_to_linear(0, r)
         return self.table[row_start:row_start+self.num_columns]
 
+    def column(self, c):
+        """Returns a column as a list.
+        >>> t = Table.from_nested_list([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+        >>> t.column(0)
+        [0, 4, 8]
+        >>> t.column(2)
+        [2, 6, 10]
+        """
+        column_start = self.subscript_to_linear(c, 0)
+        column_end = self.subscript_to_linear(c, self.num_rows-1)
+        return self.table[column_start:column_end+1:self.num_columns]
+
     def __eq__(self, other):
         """Returns true if other table has the same dimensions and content."""
         try:
@@ -204,3 +216,7 @@ class Table:
         t = Table(len(list_of_list[0]), len(list_of_list))
         t.table = list(itertools.chain(*list_of_list))
         return t
+
+if __name__ == '__main__':
+	import doctest
+	doctest.testmod()
