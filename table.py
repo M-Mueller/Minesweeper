@@ -79,7 +79,8 @@ class Table:
             try:
                 x, y = key
                 if x >= self.num_columns or y >= self.num_rows:
-                    raise IndexError('list index out of range')
+                    raise IndexError('list index out of range: {}, {}'
+                                     .format(x, y))
                 return self.table[self.subscript_to_linear(x, y)]
             except TypeError:
                 return self.table[key]
@@ -171,7 +172,7 @@ class Table:
         s = 'Table {0}x{1}:\n'.format(self.num_columns, self.num_rows)
         for r in range(self.num_rows):
             s += repr(self.row(r)) + '\n'
-        return s[:-1] #remove last newline
+        return s[:-1]  # remove last newline
 
     def __iter__(self):
         """Iterates the table in a column major order.
@@ -181,7 +182,7 @@ class Table:
         """
         for y in range(self.num_rows):
             for x in range(self.num_columns):
-                yield self[x,y]
+                yield self[x, y]
 
     @classmethod
     def from_nested_list(cls, list_of_list):

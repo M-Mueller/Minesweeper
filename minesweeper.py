@@ -14,7 +14,8 @@ class Game:
     The game provides three tables:
     1. The mines table indicate if a field contains a mine
     2. The flags table holds which fields are Unknown, Marked or Revealed
-    3. The hints table holds a pre-computed number of surrounding mines for each field
+    3. The hints table holds a pre-computed number of surrounding mines for
+       each field
     """
 
     def __init__(self, mines, flags=None):
@@ -24,7 +25,8 @@ class Game:
         if flags is None:
             flags = Table(mines.num_columns, mines.num_rows, Flags.Unknown)
         if mines.size() != flags.size():
-            raise ValueError('Fields cannot have different sizes ({0} != {1})'.format(mines.size(), flags.size()))
+            raise ValueError('Fields cannot have different sizes ({0} != {1})'
+                             .format(mines.size(), flags.size()))
         self.mines = mines
         self.flags = flags
         self.hints = Table(mines.num_columns, mines.num_rows, 0)
@@ -68,7 +70,9 @@ class Game:
         return False
 
     def auto_mark(self):
-        """Marks all mines and reveals all fields but only if all non-mine fields are already revealed."""
+        """Marks all mines and reveals all fields but only if all non-mine
+        fields are already revealed.
+        """
         for m, f in zip(self.mines, self.flags):
             # check if all non-mine fields are revealed
             if not m and f != Flags.Revealed:
@@ -90,7 +94,8 @@ class Game:
     def reveal(self, x, y, reveal_known=True):
         """Reveals a fields.
         Returns False if the revealed field was a mine field, True otherwise.
-        If the revealed field has no neighboring mines all neighboring fields are revealed recursively.
+        If the revealed field has no neighboring mines all neighboring fields
+        are revealed recursively.
         Revealing a Marked field resets it to Unknown again.
         If reveal_known is set, the field is already revealed and the number of
         flagged neighbors is equal to the hint, all non-flagged fields around
@@ -102,7 +107,10 @@ class Game:
             if self.hints[x, y] <= 0 or not reveal_known:
                 return True
             neighbors = list(self.mines.neighbors(x, y))
-            neighbor_mines = [(nx, ny) for nx, ny in neighbors if self.flags[nx, ny] == Flags.Marked]
+            neighbor_mines = [
+                (nx, ny) for nx, ny in neighbors
+                if self.flags[nx, ny] == Flags.Marked
+            ]
             if len(neighbor_mines) == self.hints[x, y]:
                 for nx, ny in neighbors:
                     if (nx, ny) not in neighbor_mines:
@@ -117,7 +125,7 @@ class Game:
                     for nx, ny in self.mines.neighbors(x, y):
                         if self.flags[nx, ny] == Flags.Unknown:
                             ok = self.reveal(nx, ny, reveal_known=False)
-                            assert ok # must not be surrounded by any mines
+                            assert ok  # must not be surrounded by any mines
                 self.auto_mark()
         return True
 
@@ -151,7 +159,9 @@ class Game:
 
     @classmethod
     def create_random(cls, columns, rows, number_of_mines):
-        """Generates a Grid of variable size and a specific number of randomly placed mines."""
+        """Generates a Grid of variable size and a specific number of
+        randomly placed mines.
+        """
         mines = Table(columns, rows, False)
         flags = Table(columns, rows, Flags.Unknown)
 
