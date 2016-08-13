@@ -30,6 +30,7 @@ Window {
                 console.log("(python) " + data)
             });
 
+            py.setHandler("game_state_changed", on_game_state_changed);
             py.setHandler("fields_changed", on_fields_changed);
 
             function init_game_fields(fields) {
@@ -53,9 +54,19 @@ Window {
             }
         }
 
+        function on_game_state_changed(won) {
+            console.log("on_game_state_changed", won)
+            game_over.visible = true
+        }
+
         function reveal_field(column, row) {
             console.log("reveal_field", column, row)
             py.call("minesweeper_qml.reveal", [column, row]);
+        }
+
+        function mark_field(column, row) {
+            console.log("mark_field", column, row)
+            py.call("minesweeper_qml.mark", [column, row]);
         }
     }
 
@@ -66,12 +77,10 @@ Window {
 
         columns: game_window.columns
         rows: game_window.rows
-        spacing: 0
+        spacing: 4
 
         horizontalItemAlignment: Grid.AlignHCenter
         verticalItemAlignment: Grid.AlignVCenter
-
-        property int which: 0
 
         Repeater {
             model: game_fields
@@ -82,16 +91,25 @@ Window {
                 source: {
                     return "field.qml"
                 }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        var column = index % grid.columns;
-                        var row = index / grid.rows;
-                        py.reveal_field(Math.floor(column), Math.floor(row));
-                    }
-                }
             }
+        }
+    }
+
+    Rectangle {
+        id: game_over
+        anchors.fill: parent
+        color: "grey"
+        opacity: 0.5
+        visible: false
+
+        Text {
+            font.bold: true
+            text: "Game Over!"
+            anchors.centerIn: parent
+        }
+
+        MouseArea {
+            anchors.fill: parent
         }
     }
 }
