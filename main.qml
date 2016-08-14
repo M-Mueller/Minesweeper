@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Window 2.2
+import QtQuick.Layouts 1.2
 
 import io.thp.pyotherside 1.4
 
@@ -7,8 +8,13 @@ Window {
     id: game_window
     visible: true
 
-    width: 640
-    height: 480
+	property int margin: 11
+    width: mainLayout.implicitWidth + 2 * margin
+    height: mainLayout.implicitHeight + 2 * margin
+    minimumWidth: mainLayout.Layout.minimumWidth + 2 * margin
+    minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
+	maximumWidth: minimumWidth
+	maximumHeight: minimumHeight
 
     property int columns: 5
     property int rows: 5
@@ -16,6 +22,20 @@ Window {
     ListModel {
         id: game_fields
     }
+
+	Stopwatch {
+		id: game_time
+		interval: 1000
+		onTriggered: {
+			time_text.time = Math.floor(passed()/1000)
+		}
+	}
+
+	function pad(num, size) {
+		// pads number with leading zeros
+		var s = "000000000" + num;
+		return s.substr(s.length-size);
+	}
 
     Python {
         id: py
@@ -57,59 +77,94 @@ Window {
         function on_game_state_changed(won) {
             console.log("on_game_state_changed", won)
             game_over.visible = true
+			game_time.stop()
         }
 
         function reveal_field(column, row) {
+			game_time.start()
             console.log("reveal_field", column, row)
             py.call("minesweeper_qml.reveal", [column, row]);
         }
 
         function mark_field(column, row) {
+			game_time.start()
             console.log("mark_field", column, row)
             py.call("minesweeper_qml.mark", [column, row]);
         }
     }
 
-    Grid {
-        id: grid
+	ColumnLayout {
+		id: mainLayout
 
-        anchors.fill: parent
+		anchors.fill: parent
+		anchors.margins: margin
+		spacing: 5
 
-        columns: game_window.columns
-        rows: game_window.rows
-        spacing: 4
+		RowLayout {
+			Layout.fillWidth: true
 
-        horizontalItemAlignment: Grid.AlignHCenter
-        verticalItemAlignment: Grid.AlignVCenter
+			Text {
+				text: "Time:"
+				font.bold: true
+			}
+			Text {
+				id: time_text
+				property int time: 0
+				text: "00:00"
+				onTimeChanged: {
+					var min = Math.floor(time / 60)
+					var sec = time % 60
+					text = "%1:%2"
+							.arg(pad(min, 2))
+							.arg(pad(sec, 2))
+				}
+			}
+			Item {
+				Layout.fillWidth: true
+			}
+			Text {
+				text: "Mines:"
+				font.bold: true
+			}
+			Text {
+				text: "0"
+			}
+		}
 
-        Repeater {
-            model: game_fields
+		Game {
+			Layout.fillWidth: true
+			Layout.fillHeight: true
+			Layout.minimumWidth: childrenRect.width
+			Layout.minimumHeight: childrenRect.height
 
-            Loader {
-                width: grid.width/grid.columns
-                height: grid.height/grid.rows
-                source: {
-                    return "field.qml"
-                }
-            }
-        }
-    }
+			model: game_fields
 
-    Rectangle {
-        id: game_over
-        anchors.fill: parent
-        color: "grey"
-        opacity: 0.5
-        visible: false
+			Rectangle {
+				id: game_over
+				anchors.fill: parent
+				color: "grey"
+				visible: false
+				opacity: visible? 0.7 : 0.0
 
-        Text {
-            font.bold: true
-            text: "Game Over!"
-            anchors.centerIn: parent
-        }
+				Text {
+					font.bold: true
+					anchors.centerIn: parent
+					text: "Game Over!"
+					font.pointSize: 20.0
+				}
 
-        MouseArea {
-            anchors.fill: parent
-        }
-    }
+				MouseArea {
+					anchors.fill: parent
+					acceptedButtons: Qt.AllButtons
+				}
+
+				Behavior on opacity {
+					NumberAnimation {
+						duration: 1000
+						easing.type: Easing.OutCubic
+					}
+				}
+			}
+		}
+	}
 }
