@@ -8,8 +8,8 @@ def log(message):
 
 def game_to_js():
     """Returns the game as a linear list of tuples (mine, flag, hint)."""
-    fields = zip(game.mines, game.flags, game.hints)
-    return [{"mine": m, "flag": f.value, "hint": h} for m, f, h in fields]
+    fields = zip(game.mines, game.flags, game.revealed, game.hints)
+    return [{"mine": m, "flag": f, "revealed": r, "hint": h} for m, f, r, h in fields]
 
 def setup_game(columns, rows):
     global game

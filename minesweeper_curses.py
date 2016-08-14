@@ -47,22 +47,27 @@ def draw_game(stdscr, rect, game):
     rect = Rect(rect.x, rect.y, game.column_count()*2+1, game.row_count()+2)
     rect = draw_frame(stdscr, rect)
 
-    for i, (mine, flag, hint) in enumerate(zip(game.mines, game.flags, game.hints)):
+    for i, (mine, flag, revealed, hint) in enumerate(zip(game.mines, game.flags,
+                                               game.revealed, game.hints)):
         x, y = game.mines.linear_to_subscript(i)
         x = x*2 + rect.x # add padding between characters to get a nicer aspect ratio
         y = y + rect.y
-        if flag == minesweeper.Flags.Unknown:
-            stdscr.addstr(y, x, "?")
-        elif flag == minesweeper.Flags.Marked:
-            stdscr.addstr(y, x, "\u26F3") # flag in hole
-        else:
-            if mine:
+        if revealed:
+            if mine and not flag:
                 stdscr.addstr(y, x, "\u26ED") # gear without hub
+            elif mine and flag:
+                stdscr.addstr(y, x, "\u26F3") # flag in hole
             else:
                 if hint == 0:
                     stdscr.addstr(y, x, " ")
                 else:
                     stdscr.addstr(y, x, str(hint), curses.A_DIM)
+        else:
+            if flag:
+                stdscr.addstr(y, x, "\u26F3") # flag in hole
+            else:
+                stdscr.addstr(y, x, "?")
+
     return rect
 
 def draw_header(stdscr, game):
@@ -72,7 +77,7 @@ def draw_header(stdscr, game):
     elif game.is_lost():
         text = "You Lost!"
     else:
-        remaining = game.mines.count(True) - game.flags.count(minesweeper.Flags.Marked)
+        remaining = game.number_of_mines() - game.number_of_flags()
         text = "Remaining Mines: {0}".format(remaining)
     stdscr.addstr(0, 0, text, curses.A_REVERSE)
     return Rect(0, 0, curses.COLS-1, 1)
