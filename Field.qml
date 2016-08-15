@@ -7,14 +7,14 @@ Item {
 	Rectangle {
 		anchors.fill: parent
 		radius: 5
-		border.width: 1
-		color: "transparent"
+		color: "#E5E7E9"
 
 		Text {
 			anchors.centerIn: parent
 			font.bold: true
+            font.pixelSize: field.height*0.6
 			text: hint
-			visible: !mine && !flag
+			visible: !mine && !flag && hint > 0
 		}
 
 		Image {
@@ -29,8 +29,7 @@ Item {
 		// covers the hint or mine
 		anchors.fill: parent
 		radius: 5
-		border.width: 1
-		color: "lightgrey"
+		color: "#909497"
 		opacity: {
 			if (revealed)
 				0.0;
