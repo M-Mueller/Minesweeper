@@ -11,11 +11,17 @@ def game_to_js():
     fields = zip(game.mines, game.flags, game.revealed, game.hints)
     return [{"mine": m, "flag": f, "revealed": r, "hint": h} for m, f, r, h in fields]
 
-def setup_game(columns, rows):
+def setup_game(columns, rows, mines):
     global game
     log("Creating game {0}x{1}".format(columns, rows))
-    game = minesweeper.Game.create_random(columns, rows, int(columns*rows*0.1))
+    game = minesweeper.Game.create_random(columns, rows, mines)
     return game_to_js()
+
+def number_of_flags():
+    if not game:
+        return 0
+
+    return game.number_of_flags()
 
 def update():
     if game.is_lost() or game.is_solved():

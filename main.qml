@@ -18,6 +18,7 @@ Window {
 
     property int columns: 5
     property int rows: 5
+	property int mines: 2
 
     ListModel {
         id: game_fields
@@ -62,7 +63,7 @@ Window {
 
             // Import the main module and load the data
             importModule("minesweeper_qml", function () {
-                py.call("minesweeper_qml.setup_game", [game_window.columns, game_window.rows], init_game_fields);
+				py.call("minesweeper_qml.setup_game", [game_window.columns, game_window.rows, game_window.mines], init_game_fields);
             });
         }
 
@@ -72,10 +73,13 @@ Window {
             for(var i=0; i<fields.length; ++i) {
                 game_fields.set(i, fields[i]);
             }
+			var flags = py.call_sync("minesweeper_qml.number_of_flags")
+			mines_text.num_flags = flags
         }
 
         function on_game_state_changed(won) {
             console.log("on_game_state_changed", won)
+			game_over.won = won
             game_over.visible = true
 			game_time.stop()
         }
@@ -127,7 +131,11 @@ Window {
 				font.bold: true
 			}
 			Text {
-				text: "0"
+				id: mines_text
+				property int num_flags: 0
+				text: "%1/%2".arg(num_flags)
+							 .arg(game_window.mines)
+				color: num_flags > game_window.mines? "red" : "black"
 			}
 		}
 
@@ -141,6 +149,9 @@ Window {
 
 			Rectangle {
 				id: game_over
+
+				property bool won: false
+
 				anchors.fill: parent
 				color: "grey"
 				visible: false
@@ -148,9 +159,10 @@ Window {
 
 				Text {
 					font.bold: true
-					anchors.centerIn: parent
-					text: "Game Over!"
 					font.pointSize: 20.0
+					anchors.centerIn: parent
+					text: parent.won? "You win!" : "Game Over!"
+					color: "red"
 				}
 
 				MouseArea {

@@ -33,12 +33,20 @@ class Game:
             self.hints[i] = self.hint(*self.hints.linear_to_subscript(i))
 
     def row_count(self):
-        """Returns the vertical size of the field."""
+        """Returns the vertical size of the game."""
         return self.mines.num_rows
 
     def column_count(self):
-        """Returns the horizontal size of the field."""
+        """Returns the horizontal size of the game."""
         return self.mines.num_columns
+
+    def number_of_mines(self):
+        """Returns the number of mines in the game."""
+        return self.mines.count(True)
+
+    def number_of_flags(self):
+        """Returns the number of user placed flags."""
+        return self.flags.count(True)
 
     def hint(self, x, y):
         """Computes and returns the number of mines in the neighboring fields
