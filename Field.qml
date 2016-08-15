@@ -2,7 +2,9 @@ import QtQuick 2.0
 
 Item {
 	id: field
-	anchors.fill: parent
+
+	property int column: 0
+	property int row: 0
 
 	Rectangle {
 		anchors.fill: parent
@@ -63,8 +65,6 @@ Item {
 		anchors.fill: parent
 		acceptedButtons: Qt.LeftButton | Qt.RightButton
 		onClicked: {
-			var column = Math.floor(index % grid.columns);
-			var row = Math.floor(index / grid.rows);
 			if (mouse.button === Qt.LeftButton)
 				py.reveal_field(column, row);
 			else
