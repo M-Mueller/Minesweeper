@@ -137,11 +137,13 @@ class Game:
 
     def toggle_mark(self, x, y):
         """Toggles the mark of a field.
-        Does nothing on already revealed fields.
+        If the field is already revealed, calls reveal() on the field.
         """
         if not self.revealed[x, y]:
             self.flags[x, y] = not self.flags[x, y]
             self.auto_mark()
+        else:
+            self.reveal(x, y)
 
     def print_field(self):
         s = ''
